@@ -163,7 +163,7 @@ env311\Scripts\activate        # Windows
 # source env311/bin/activate   # Linux/Mac
 
 # Install dependencies
-pip install pandas numpy scikit-learn xgboost mlflow matplotlib seaborn joblib
+pip install -r requirements.txt
 ```
 
 ### Run Training
