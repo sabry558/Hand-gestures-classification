@@ -12,6 +12,8 @@ This project reads raw structural coordinates of hands (x, y, z for 21 structura
 Hand-gestures-classification/
 ├── Hand gestures.ipynb      # Main Jupyter Notebook with the full ML pipeline
 ├── hand_landmarks_data.csv  # Dataset with 21 3D hand landmark coordinates
+├── model/
+│   └── hand_gesture_svm_model.pkl  # Trained SVM model (best performing)
 ├── requirements.txt         # Python dependencies needed to run the project
 ├── .gitignore               # Git ignore rules
 └── README.md                # This documentation file
@@ -50,9 +52,36 @@ To push performance even higher, we combined the top-tier models (SVM, XGBoost, 
 - **Voting Classifier**: Aggregated predictions via soft voting.
 - **Stacking Classifier**: Trained a meta-model on the predictions of the base estimators.
 
-### 6. Model Evaluation
-- Using metrics like `accuracy`, `precision`, `recall`, and `f1_score`, the models were systematically compared.
-- **Winning Model**: **Support Vector Machine (SVC)** was determined to be the highest performing and most reliable model on the test data.
+### 6. Model Evaluation & Comparison
+
+Using metrics like `accuracy`, `precision`, `recall`, and `f1_score`, the models were systematically compared on the **held-out 20% test set** (5,135 samples).
+
+#### 📊 Model Comparison Table
+
+| # | Model | Accuracy | Precision | Recall | F1-Score | Best Hyperparameters |
+|:-:|:------|:--------:|:---------:|:------:|:--------:|:---------------------|
+| 🥇 | **SVM (RBF)** | **99.0%** | **99.0%** | **99.0%** | **99.0%** | C=100, gamma=0.5, kernel=rbf |
+| 🥈 | **Stacking Classifier** | **98.9%** | **98.9%** | **98.9%** | **98.9%** | SVM + XGB + RF + KNN → LR meta |
+| 🥉 | **Voting Classifier** | **98.8%** | **98.7%** | **98.7%** | **98.7%** | SVM + XGB + RF + KNN (soft) |
+| 4 | XGBoost | 98.5% | 98.5% | 98.5% | 98.5% | lr=0.2, max_depth=3, n_est=400 |
+| 5 | KNN | 97.9% | 97.9% | 97.9% | 97.9% | k=3, weights=distance, euclidean |
+| 6 | Random Forest | 97.9% | 97.9% | 97.9% | 97.9% | max_depth=None, n_est=300 |
+| 7 | Decision Tree | 96.2% | 96.1% | 96.2% | 96.2% | entropy, max_depth=None, leaf=4, split=10 |
+| 8 | Logistic Regression | 90.3% | 90.7% | 90.6% | 90.6% | C=100, max_iter=10000 |
+
+> **Precision, Recall, and F1-Score** are **macro-averaged** across all 18 gesture classes.
+
+#### 🏆 Best Model: Support Vector Machine (SVC with RBF Kernel)
+
+The **SVM (RBF kernel)** achieved the highest overall performance with **99.0% accuracy** on the test set, outperforming even ensemble methods (Stacking and Voting classifiers). Key details:
+
+- **Best Hyperparameters**: `C=100`, `gamma=0.5`, `kernel=rbf`, `probability=True`
+- **Test Accuracy**: 99.0%
+- **Macro-Averaged Precision**: 99.0%
+- **Macro-Averaged Recall**: 99.0%
+- **Macro-Averaged F1-Score**: 99.0%
+
+The trained SVM model is saved as `model/hand_gesture_svm_model.pkl` for deployment in the real-time prediction system.
 
 ### 7. Real-time Prediction System
 The final section of the project connects the winning SVM model to a live webcam feed using OpenCV and MediaPipe Hands:
